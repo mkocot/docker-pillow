@@ -61,7 +61,7 @@ jobs:
           build-args: |
             PACKAGE_NAME=${{ env.PACKAGE_NAME }}
             PACKAGE_VERSION=${{ env.PACKAGE_VERSION }}
-            WHEELS=${{ WHEELS }}
+            WHEELS=${{ env.WHEELS }}
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ env.IMAGE_NAME }}
           load: true
