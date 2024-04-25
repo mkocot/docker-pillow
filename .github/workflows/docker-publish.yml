@@ -19,7 +19,9 @@ env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-
+  PACKAGE_NAME: pillow
+  PACKAGE_VERSION: 10.2.0
+  WHEELS: /wheels
 
 jobs:
   build:
@@ -36,25 +38,40 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Setup Docker buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Setup python
-        uses: actions/setup-python@v5
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install cibuildwheel
-        run: python -m pip install cibuildwheel==2.17.0
-
-      - name: Update and run
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential
-          python -m venv /tmp/venv 
-          /tmp/venv/bin/python -m pip install -U pip wheel
-          MAKEFLAGS="-j$(nproc)" /tmp/venv/bin/python -m pip wheel --no-cache-dir --wheel-dir /tmp/wheels "pillow==10.2.0"
-      - name: name
-        run: /tmp/venv/bin/python -m pip wheel --no-cache-dir --wheel-dir /tmp/wheels "pillow==10.2.0"
-
-
-      - name: Build wheels
-        run: python -m cibuildwheel --output-dir wheelhouse
+      # Build and push Docker image with Buildx (don't push on PR)
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          build-args: |
+            PACKAGE_NAME=${{ env.PACKAGE_NAME }}
+            PACKAGE_VERSION=${{ env.PACKAGE_VERSION }}
+            WHEELS=${{ WHEELS }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.IMAGE_NAME }}
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/arm/v7
+      - name: Extract artifacts
+        uses: shrink/actions-docker-extract@v3
+        id: extract
+        with:
+          image: ${{ env.IMAGE_NAME }}
+          path: ${{ env.WHEELS }}
+          destination: wheels
