@@ -98,7 +98,8 @@ jobs:
         uses: shrink/actions-docker-extract@v3
         id: extract
         with:
-          image: ${{ steps.build-and-push.outputs["image.name"] }}
+          # ${{ env.REGISTRY}}/${{ env.IMAGE_NAME }}:${{ github.head_ref }}
+          image: ${{ steps.build-and-push.outputs.image_name }}
           path: ${{ env.WHEELS }}
           destination: wheels
 
