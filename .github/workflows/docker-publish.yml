@@ -77,6 +77,6 @@ jobs:
       - name: Upload wheels
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ PACKAGE_NAME }}-${{ PACKAGE_VERSION }}-armv7
-          path: wheels/${{ PACKAGE_NAME }}-${{ PACKAGE_VERSION }}-cp311-cp311-linux_armv7l.whl
+          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-armv7
+          path: wheels/${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp311-cp311-linux_armv7l.whl
           if-no-files-found: error
