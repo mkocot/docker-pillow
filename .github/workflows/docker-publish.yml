@@ -94,21 +94,6 @@ jobs:
           cache-to: type=gha,mode=max
           platforms: linux/arm/v7
 
-      - name: Extract wheels
-        uses: shrink/actions-docker-extract@v3
-        id: extract
-        with:
-          image: ${{ env.REGISTRY}}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
-          path: ${{ env.WHEELS }}
-          destination: wheels
-
-      - name: Upload wheels
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-armv7
-          path: wheels/${{ env.PACKAGE_NAME }}-${{ env.PACKAGE_VERSION }}-cp311-cp311-linux_armv7l.whl
-          if-no-files-found: error
-
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
       # repository is public to avoid leaking data.  If you would like to publish
