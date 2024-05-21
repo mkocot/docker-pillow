@@ -20,7 +20,7 @@ env:
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
   PACKAGE_NAME: pillow
-  PACKAGE_VERSION: 10.2.0
+  PACKAGE_VERSION: 10.3.0
   WHEELS: /wheels
 
 jobs:
